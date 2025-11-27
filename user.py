@@ -37,6 +37,9 @@ def key_api_validation(func):
         bound.apply_defaults()
         key = bound.arguments.get('key')
 
+        if not key or key.strip() == "":
+            raise ValueError("API key trống!")
+
         try:
             genai.configure(api_key=key)
             model = genai.GenerativeModel("gemini-2.5-flash")
@@ -46,44 +49,81 @@ def key_api_validation(func):
             raise ValueError(f'API is invalid: {key}')
     return wrapper
 
+
+
 @key_api_validation
 def set_key(key):
     global API_KEY
     API_KEY = key
 
+def set_filepath(filepath:str):
+    if os.path.exists(filepath):
+        global SCREENSHOT_FOLDER
+        SCREENSHOT_FOLDER = filepath
+        return True
+    raise ValueError(f'File path: {filepath} isn\'t existed')
+
     
 # api_key = os.getenv("GEMINI_API_KEY")
-def ui_apikey(env=None)-> bool:
-    def set_key_ui():
+def ui_apikey()-> bool:
+    def ui_set_key():
         key = entry_key.get()
         try:
             set_key(key)
-            result['status'] = True
-            root.destroy()
+            result['status_key'] = True
+            messagebox.showinfo("Thành công", "Key hợp lệ!")
         except ValueError as e:
             print('Lôi')
-            messagebox.showerror("Lỗi", "Key nhập không hợp lệ!")
+            messagebox.showerror("Lỗi", e)
 
-    result = {"status": False}  # biến để biết user nhập đúng hay tắt cửa sổ
+    def ui_set_filepath():
+        filepath = entry_filepath.get()
+        print(filepath)
+        try:
+            set_filepath(filepath)
+            result['status_filepath'] = True
+            messagebox.showinfo("Thành công", "Filepath hợp lệ!")
+
+        except Exception as e:
+            messagebox.showerror("ERROR", e)
+
+    def on_click_check_key():
+        ui_set_key()
+        check_result()
+
+    def on_click_check_filepath():
+        ui_set_filepath()
+        check_result()
+
+    def check_result():
+        if all(i for i in result.values()):
+            root.destroy()
+
+    result = {
+        "status_key": False,
+        "status_filepath": False
+        }  # biến để biết user nhập đúng hay tắt cửa sổ
+
 
     # For developer
-    if env:
-        key = os.getenv(env)
-        set_key(key)
-        return True
-    else: # For user
-        root = tk.Tk()
-        root.title('Love Window')
-        root.geometry("400x300")
+    
+    root = tk.Tk()
+    root.title('Love Window')
+    root.geometry("400x300")
 
-        tk.Label(root, text="Nhập key: ").pack()
-        entry_key = tk.Entry(root)
-        entry_key.pack()
-     
-        tk.Button(root, text="Nhập", command=set_key_ui).pack(pady=10)
+    tk.Label(root, text="Nhập key: ").pack()
+    entry_key = tk.Entry(root)
+    entry_key.pack()
+    tk.Button(root, text="Kiểm tra key", command=on_click_check_key).pack(pady=10)
 
-        root.mainloop()
-    return result["status"]
+    tk.Label(root, text="Nhập đường dẫn: ").pack()
+    entry_filepath = tk.Entry(root)
+    entry_filepath.pack()
+    tk.Button(root, text="Kiểm filepath", command=on_click_check_filepath).pack(pady=10)
+
+    root.mainloop()
+
+    return all(i for i in result.values())
 
 def stop_program(key):
     global runing
