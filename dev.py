@@ -90,7 +90,7 @@ def stop_program(key):
     if key == keyboard.Key.esc:
         runing = False
         remove_all_in_folder(SCREENSHOT_FOLDER)
-    os.system("taskkill /IM cmd.exe /F")
+        os.system("taskkill /IM cmd.exe /F")
 
 def remove_all_in_folder(path):
     for item in os.listdir(path):
