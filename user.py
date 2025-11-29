@@ -1,7 +1,3 @@
-# Read API KEY
-from dotenv import load_dotenv
-load_dotenv()  # đọc file .env
-
 import google.generativeai as genai
 import os
 import sys
@@ -21,13 +17,13 @@ API_KEY = None
 SCREENSHOT_FOLDER = r"C:\Users\Huy Le\Pictures\skibidi"
 
 
-def resource_path(relative_path):
-    """ Lấy đường dẫn đúng khi chạy .exe hoặc chạy Python """
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
+# def resource_path(relative_path):
+#     """ Lấy đường dẫn đúng khi chạy .exe hoặc chạy Python """
+#     try:
+#         base_path = sys._MEIPASS
+#     except Exception:
+#         base_path = os.path.abspath(".")
+#     return os.path.join(base_path, relative_path)
 
 def key_api_validation(func):
     sig = inspect.signature(func)
@@ -64,7 +60,6 @@ def set_filepath(filepath:str):
     raise ValueError(f'File path: {filepath} isn\'t existed')
 
     
-# api_key = os.getenv("GEMINI_API_KEY")
 def ui_apikey()-> bool:
     def ui_set_key():
         key = entry_key.get()
@@ -145,7 +140,8 @@ def remove_all_in_folder(path):
 def ask_gemini(image_path):
     time.sleep(5)
     img = Image.open(image_path)
-    prompt = "Bạn là một chuyên gia phân tích đề thi trắc nghiệm. Đọc ảnh thật là kỹ, suy nghĩ logic và chọn đáp án đúng nhất, chỉ cần trả lời bằng 1 từ A, B, C, hoặc D."
+    prompt = "Bạn là một chuyên gia phân tích đề thi trắc nghiệm và tự luận. Đọc ảnh thật là kỹ, suy nghĩ logic và chọn đáp án đúng nhất." \
+    "Kết hợp suy nghĩ sâu, tìm kiếm website về môn liên quan. Trả lời gọn xúc tích, nhưng đầy đủ ý. Đối với trắc nghiệm hãy đặt A,B... là từ cuối cùng"
     response = model.generate_content([prompt, img])
     return response.text
     
